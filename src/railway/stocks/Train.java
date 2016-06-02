@@ -1,3 +1,8 @@
+/*
+ * Train
+ *
+ * Version 1
+ */
 package railway.stocks;
 
 import java.util.ArrayList;
@@ -6,17 +11,25 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ * A rail transport consisting of a series of vehicles that transport cargo or passengers
+ * 
  * @author Tanya Domchenko
+ * @version 1, 07 May 2016
  */
 public class Train {
-    private final TrainType type;
+    private final TrainType type;	// the type of the service
     
-    private final PoweredStock head;
-    private final PoweredStock tail;
-    private LinkedList<UnpoweredStock> vans = new LinkedList();
-    private int length = 0;    
+    private final PoweredStock head;	// the self-propelled rolling stock at the front of the train
+    private final PoweredStock tail;	// the self-propelled rolling stock at the end of the train
+    private LinkedList<UnpoweredStock> vans = new LinkedList();	// the list of vans 
+    private int length = 0;    			// the amount of the vans
     
+	/**
+	 * Constructor that builds the train by its service type and the distance of the route
+	 * 
+	 * @param type the type of the service
+	 * @param distance the route length
+	 */
     public Train(TrainType type, int distance) {
         this.type = type;
         if ( distance <= 150 ) {
@@ -32,11 +45,21 @@ public class Train {
             tail = new Locomotive( power );
         }
     }
-    
+	
+    /**
+	 * Gets the type of the train
+	 */
     public TrainType getType() {
         return type;
     }
     
+	/**
+	 * Adds the passenger coaches at the beginning or at the end of the train
+	 *
+	 * @param vanType the class of the van
+     * @param count the amount of the vans
+	 * @param addToEnd the direction where to add this vans
+	 */
     public boolean addVans(Carriage.Type vanType, int count, boolean addToEnd) {
         if ( type != TrainType.PASSENGER ) {
             return false;
@@ -54,11 +77,24 @@ public class Train {
         }
     }
     
+	/**
+	 * Checks whether train could move such amount of vans
+	 * 
+	 * @param van the pattern rolling stock
+	 * @param count the amount of the vans
+	 */
     private boolean isPermissibleLoad(UnpoweredStock van, int count) {
         float w = head.getGrossWeight() + tail.getGrossWeight();         
         return w + van.getGrossWeight() * count <= head.getMaxTrainWeight();
     }
     
+	/**
+	 * Adds some amount of the vans at the front or at the end of the train
+	 *
+	 * @param van the pattern rolling stock
+	 * @param count the amount of the vans
+	 * @param addToEnd the sign to add vans at the front of the train, if false - at the end of the train
+	 */
     private void insertVan(UnpoweredStock van, int count, boolean addToEnd) {
         do {                
             van.setNumber( generateIndexNumber() );
@@ -76,6 +112,9 @@ public class Train {
         } while ( count > 0 );
     }
     
+	/**
+	 * Defines the sequence number of the van in the train
+	 */
     private int generateIndexNumber() {
         int num = 0;
         if ( vans.isEmpty() ) {
@@ -100,6 +139,11 @@ public class Train {
         return num;
     }
     
+	/**
+	 * Creates a new rolling stock by defined pattern van
+	 *
+	 * @param origin the pattern object
+	 */
     private UnpoweredStock buildVan(UnpoweredStock origin) {
         UnpoweredStock newVan = null;
         if ( origin instanceof Carriage ) {
@@ -111,6 +155,13 @@ public class Train {
         return newVan;
     }
     
+	/**
+	 * Adds the wagons at the beginning or at the end of the train
+	 *
+	 * @param vanType the class of the van
+     * @param count the amount of the vans
+	 * @param addToEnd the direction where to add this vans
+	 */
     public boolean addVans(Wagon.Type vanType, int count, boolean addToEnd) {
         if ( type != TrainType.WEIGHT ) {
             return false;
@@ -129,7 +180,7 @@ public class Train {
     }
     
     /**
-     * Returns a copy
+     * Returns the rolling stocks of the train
      * 
      * @return 
      */
@@ -154,10 +205,19 @@ public class Train {
         return l;
     }
     
+	/**
+     * Returns the count of the rolling stocks
+     */
     public int getVansCount() {
         return length;
     }
     
+	/**
+	 * Returns rolling stocks by the defined amount of passengers
+	 *
+	 * @param aFrom the lower range
+	 * @param aFrom the upper range
+	 */
     public List<RollingStock> filterByCapacity(int aFrom, int aTo) {
         List<RollingStock> l = new ArrayList<>();        
         copyIfCapacityBetween( head, aFrom, aTo, l );        
@@ -168,6 +228,13 @@ public class Train {
         return l;
     }
     
+	/**
+	 * Returns a copy of van which capacity is in the defined range
+	 *
+	 * @param st the origin
+	 * @param aFrom the lower range
+	 * @param aFrom the upper range
+	 */
     private void copyIfCapacityBetween(RollingStock st, int aFrom, int aTo,
             List<RollingStock> list) {
         RollingStock copy = null;
@@ -181,6 +248,11 @@ public class Train {
         }
     }
     
+	/**
+	 * Copies a rolling stock
+	 *
+	 * @param st the origin
+	 */
     private RollingStock getCopy(RollingStock st) {
         RollingStock copy = null;
         try {
@@ -190,6 +262,9 @@ public class Train {
         return copy;
     }
     
+	/**
+	 * Calculates the total amount of passengers in the train
+	 */
     public int countPassengers() {
         int count = head.getPassengerCapacity() + tail.getPassengerCapacity();
         for ( UnpoweredStock st: vans ) {
@@ -198,6 +273,9 @@ public class Train {
         return count;
     }
     
+	/**
+	 * Calculates the total payload of the train
+	 */
     public float calculatePayload() {
         float sum = head.getPayloadCapacity() + tail.getPayloadCapacity();
         for ( UnpoweredStock st: vans ) {
@@ -206,12 +284,18 @@ public class Train {
         return sum;
     }
     
+	/**
+	 * Sorts passenger coaches by their comfortability class
+	 */
     public void sortCarriagesByClass() {
         CarriageClassComparator comparator = new CarriageClassComparator();
         vans.sort( comparator );
         enumerate();
     }
     
+	/**
+	 * Renumber the vans of the train
+	 */
     private void enumerate() {
         int num = ( head instanceof MotorCoach ) ? 2 : 1;
         for ( UnpoweredStock st: vans ) {

@@ -1,14 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * TrainType
+ *
+ * Version 1
  */
 package railway.stocks;
 
 /**
+ * Declares classes of service of the train
  *
  * @author Tanya Domchenko
+ * @version 1, 07 May 2016
  */
 public enum TrainType {
-    PASSENGER, WEIGHT;
+    PASSENGER,	// to transport passengers
+	WEIGHT;		// to transport cargo
 }
